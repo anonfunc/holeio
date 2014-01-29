@@ -64,6 +64,11 @@ def save_config():
         config.write(configfile)
   redirect("/config")
 
+@get('/authorize')
+@view('authorize')
+def get_authorize():
+  return dict()
+
 @route('/')
 @route('/history')
 @view('history')

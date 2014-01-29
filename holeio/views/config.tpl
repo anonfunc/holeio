@@ -17,9 +17,4 @@
 <label for="download_dir">Download Directory</label><input type="text" name="download_dir" id="download_dir" value="{{download_dir}}"> <br>
 </fieldset>
 <button class="smooth btn-b">Save</button>
-%if token_set:
-Token has been set.
-%else:
-<a href="https://api.put.io/v2/oauth2/authenticate?client_id={{client_id}}&response_type=token&redirect_uri=YOUR_REGISTERED_REDIRECT_URI"><button class="btn-a smooth">Authorize</button></a>
-%end
 </form>

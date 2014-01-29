@@ -10,6 +10,7 @@
     <a class="pagename" href="#">Hole.io</a>
     <a class="navbar-link" href="history">History</a>
     <a class="navbar-link" href="config">Config</a>
+    <a class="navbar-link" href="authorize">Authorize</a>
   </div>
 %include
 </body>
