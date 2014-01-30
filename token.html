@@ -10,7 +10,14 @@
 <body>
   <div class="navbar">
     <a class="pagename" href="#">Hole.io</a>
-    <a class="pagename" href="https://github.com/anonfunc/holeio">Source</a>
   </div>
+  <h3>Your Token:</h3>
+  <div id="token"></div>
+  <script>
+  $(document).ready(function() {
+      var hash = window.location.hash.substring(1);
+      $("#token").text(hash);
+  });
+  </script>
 </body>
 </html>
