@@ -17,6 +17,8 @@
 <legend>Directories</legend>
 <label for="blackhole_dir">Blackhole Directory</label><input type="text" name="blackhole_dir" id="blackhole_dir" value="{{blackhole_dir}}"> <br>
 <label for="download_dir">Download Directory</label><input type="text" name="download_dir" id="download_dir" value="{{download_dir}}"> <br>
+</fieldset>
+<fieldset>
 <legend>Intervals</legend>
 <label for="polling_interval">Poll for completed transfers (minutes)</label><input type="text" name="polling_interval" id="polling_interval" value="{{polling_interval}}"> <br>
 </fieldset>
