@@ -30,8 +30,8 @@ $(document).ready(function () {
     var id = $("#client_id").val();
     var secret = $("#client_secret").val();
     var url = ("https://api.put.io/v2/oauth2/authenticate?client_id="
-              + id + "&response_type=token&redirect_url=" + "http://anonfunc.github.io/holeio/token.html");
-    alert(url);
+              + id + "&response_type=token&redirect_uri=" + encodeURIComponent("http://anonfunc.github.io/holeio/token.html"));
+    open(url);
   });
 });
 </script>
