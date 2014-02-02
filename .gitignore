@@ -2,4 +2,5 @@
 *.egg-info/
 *.un~
 venv/
-fabfile.py
+/fabfile.py
+/holeio.cfg
