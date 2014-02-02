@@ -1,4 +1,5 @@
 # Hole.io
+[![Stories in Ready](https://badge.waffle.io/anonfunc/holeio.png?label=ready)](http://waffle.io/anonfunc/holeio)
 
 Hole.io is a "blackhole" downloader for [Put.io]("http://put.io") which does the following:
 * Watches a "blackhole" directory for added torrent files
