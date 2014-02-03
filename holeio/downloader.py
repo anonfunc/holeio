@@ -1,10 +1,11 @@
 import threading
 import ConfigParser
-import time
 
 from holeio import client
 
 running = False
+wakeup = threading.Condition()
+
 def loop():
   global running
   running = True
@@ -14,14 +15,25 @@ def loop():
     config = ConfigParser.RawConfigParser()
     config.read("holeio.cfg")
     polling_interval = config.get('intervals', 'polling')
-    time.sleep(int(polling_interval) * 60)
+    inactive_interval = config.get('intervals', 'inactive')
+    wakeup.acquire()
+    if client.waiting_for_transfers():
+      print "Still have transfers, short poll."
+      wakeup.wait(int(polling_interval) * 60)
+    else:
+      print "No transfers, long poll"
+      wakeup.wait(int(inactive_interval) * 60)
+    wakeup.release()
 
 dl_thread = None
 def start():
   global dl_thread
-  dl_thread = threading.Thread(target=loop)
-  dl_thread.daemon = True
-  dl_thread.start()
+  global running
+  if not dl_thread and not running:
+    dl_thread = threading.Thread(target=loop)
+    dl_thread.daemon = True
+    dl_thread.start()
+    print "Started downloader"
 
 def stop():
   global dl_thread
@@ -31,6 +43,8 @@ def stop():
     print "Waiting for downloads to finish..."
     dl_thread.join()
 
-def restart():
-  stop()
-  start()
+def wake():
+  wakeup.acquire()
+  wakeup.notify()
+  print "Waking Downloader..."
+  wakeup.release()

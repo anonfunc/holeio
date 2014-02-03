@@ -21,6 +21,7 @@
 <fieldset>
 <legend>Intervals</legend>
 <label for="polling_interval">Poll for completed transfers (minutes)</label><input type="text" name="polling_interval" id="polling_interval" value="{{polling_interval}}"> <br>
+<label for="inactive_interval">Poll this often after all transfers have finished (minutes)</label><input type="text" name="inactive_interval" id="inactive_interval" value="{{inactive_interval}}"> <br>
 </fieldset>
 <button class="smooth btn-b">Save</button>
 </form>

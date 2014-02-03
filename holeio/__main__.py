@@ -1,6 +1,5 @@
 from bottle import run
 import os
-import ConfigParser
 
 from holeio import views  # noqa
 from holeio import watcher, downloader

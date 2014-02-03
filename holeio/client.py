@@ -33,6 +33,25 @@ def add_torrent(torrent, category=None):
     dir = ensure_directory(category, dir.id)
   return c.Transfer.add_torrent(torrent, dir.id, extract=True)
 
+def waiting_for_transfers():
+  c = get_client()
+  for transfer in c.Transfer.list():
+    try:
+      file = c.File.get(transfer.file_id)
+    except Exception as e:
+      print "Skipping file, %s" % e
+      continue
+    parent_dir = file.parent_id
+    grandparent_dir = 0
+    if parent_dir != 0:
+      grandparent_dir = c.File.get(parent_dir).parent_id
+    holeio_id = ensure_directory("holeio").id
+    if holeio_id in [parent_dir, grandparent_dir]:
+      print "Found transfer under holeio dir."
+      return True
+  print "Did not find transfer under holeio dir."
+  return False
+
 def download_finished_transfers():
   c = get_client()
   config = ConfigParser.RawConfigParser()

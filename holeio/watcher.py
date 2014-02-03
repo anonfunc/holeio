@@ -6,6 +6,7 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
 from holeio import client
+from holeio import downloader
 
 class TorrentEventHandler(FileSystemEventHandler):
   def __init__(self, token):
@@ -29,6 +30,8 @@ class TorrentEventHandler(FileSystemEventHandler):
     print "I think it's in category %s" % category
     client.add_torrent(file_path, category)
     os.rename(file_path, file_path + ".added")
+    print "Let's wake up the downloader, if needed"
+    downloader.wake()
 
   def on_created(self, event):
     self.check_file(event.src_path)

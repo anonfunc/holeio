@@ -1,5 +1,4 @@
 import os
-from collections import defaultdict
 
 import bottle
 from bottle import route, get, post, view, request, redirect
@@ -23,6 +22,7 @@ def config():
             "token": "",
             "host": "",
             "polling_interval": 5,
+            "inactive_interval": 60,
             "blackhole_dir": "",
             "download_dir": ""}
   config = ConfigParser.RawConfigParser()
@@ -34,6 +34,7 @@ def config():
   blackhole_dir = config.get('directories', 'blackhole')
   download_dir = config.get('directories', 'download')
   polling_interval = config.get('intervals', 'polling')
+  inactive_interval = config.get('intervals', 'inactive')
   return locals()
 
 @post('/config')
@@ -49,9 +50,6 @@ def save_config():
   old_dir = ""
   if config.has_option("directories", "blackhole"):
     old_dir = config.get("directories", "blackhole")
-  old_interval = 0
-  if config.has_option("intervals", "polling"):
-    old_interval = config.get("intervals", "polling")
   config.set('web', 'host', request.forms.host)
   config.set('oauth', 'client_id', request.forms.client_id)
   config.set('oauth', 'token', request.forms.token)
@@ -59,6 +57,7 @@ def save_config():
   config.set('directories', 'blackhole', request.forms.blackhole_dir)
   config.set('directories', 'download', request.forms.download_dir)
   config.set('intervals', 'polling', request.forms.polling_interval)
+  config.set('intervals', 'inactive', request.forms.inactive_interval)
   # Show the new config
   # Writing our configuration file to 'example.cfg'
   with open('holeio.cfg', 'wb') as configfile:
@@ -66,9 +65,7 @@ def save_config():
   if old_dir != request.forms.blackhole_dir:
     print "New drop directory, restarting watcher"
     watcher.restart_watcher()
-  if old_interval != request.forms.polling_interval:
-    downloader.restart()
-
+  downloader.start()
   redirect("/config")
 
 @get('/authorize')
