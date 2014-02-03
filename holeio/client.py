@@ -26,22 +26,24 @@ def ensure_directory(name, parent=0):
   return dir_obj
 
 def add_torrent(torrent, category=None):
-  c = get_client()
-  dir = ensure_directory("holeio")
-  # Transfer object
-  if category:
-    dir = ensure_directory(category, dir.id)
-  return c.Transfer.add_torrent(torrent, dir.id, extract=True)
+  try:
+    c = get_client()
+    dir = ensure_directory("holeio")
+    # Transfer object
+    if category:
+      dir = ensure_directory(category, dir.id)
+    return c.Transfer.add_torrent(torrent, dir.id, extract=True)
+  except:
+    print "Problem adding torrent"
 
 def waiting_for_transfers():
   c = get_client()
   for transfer in c.Transfer.list():
-    try:
-      file = c.File.get(transfer.file_id)
-    except Exception as e:
-      print "Skipping file, %s" % e
+    if transfer.downloaded:
       continue
-    parent_dir = file.parent_id
+    if transfer.status in ["COMPLETED", "SEEDING"]:
+      continue
+    parent_dir = transfer.save_parent_id
     grandparent_dir = 0
     if parent_dir != 0:
       grandparent_dir = c.File.get(parent_dir).parent_id

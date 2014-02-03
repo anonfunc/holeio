@@ -18,10 +18,10 @@ def loop():
     inactive_interval = config.get('intervals', 'inactive')
     wakeup.acquire()
     if client.waiting_for_transfers():
-      print "Still have transfers, short poll."
+      print "Still have transfers, short poll. Waiting for %s minutes" % polling_interval
       wakeup.wait(int(polling_interval) * 60)
     else:
-      print "No transfers, long poll"
+      print "No transfers, long poll, waiting for %s minutes " % inactive_interval
       wakeup.wait(int(inactive_interval) * 60)
     wakeup.release()
 

@@ -37,7 +37,6 @@ class TorrentEventHandler(FileSystemEventHandler):
     self.check_file(event.src_path)
 
   def on_moved(self, event):
-    self.check_file(event.src_path)
     self.check_file(event.dest_path)
 
 observer = None
