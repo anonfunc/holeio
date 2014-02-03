@@ -8,5 +8,4 @@ fi
 source venv/bin/activate
 pip install -r requirements.txt
 python setup.py develop
-nohup python holeio > holeio.log &
-echo $! > holeio.pid
+exec bottle.py holeio.app > holeio.log
