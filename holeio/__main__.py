@@ -9,4 +9,4 @@ if os.path.isfile('holeio.cfg'):
   #config.read('holeio.cfg')
   watcher.start_watching()
   downloader.start()
-run(host='0.0.0.0', port=8080, reloader=True, debug=True)
+run(host='0.0.0.0', port=8080, reloader=False, debug=False)
