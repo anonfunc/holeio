@@ -5,6 +5,8 @@ import putio
 import logging
 logger = logging.getLogger(__name__)
 
+from holeio import db
+
 client = None
 def get_client():
   global client
@@ -34,9 +36,12 @@ def add_torrent(torrent, category=None):
     # Transfer object
     if category:
       dir = ensure_directory(category, dir.id)
-    return c.Transfer.add_torrent(torrent, dir.id, extract=True)
+    result = c.Transfer.add_torrent(torrent, dir.id, extract=True)
+    db.add_history("Uploaded torrent from %s" % str(torrent))
+    return result
   except:
     logger.error("Problem adding torrent")
+    db.add_history("Problem uploading torrent from %s" % str(torrent))
 
 def waiting_for_transfers():
   c = get_client()
@@ -91,8 +96,10 @@ def download_finished_transfers():
         # Mirror it locally
         os.makedirs(local_path)
       logger.info("Starting download to %s..." % local_dir)
+      db.add_history("Starting download to %s" % local_path)
       file.download(local_dir, delete_after_download=True)
       logger.info("Finished downloading file to %s.", local_path)
+      db.add_history("Finished download to %s" % local_path)
   logger.info("Done with all transfers, cleaning.")
   c.Transfer.clean()
 

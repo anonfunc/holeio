@@ -7,8 +7,10 @@
         <th>Message</th>
       </tr>
     </thead>
+    % for row in history:
     <tr>
-      <td>Jan 01, 2014</td>
-      <td>Blah blah</td>
+      <td>{{row[0]}}</td>
+      <td>{{row[1]}}</td>
     </tr>
+    % end
   </table>

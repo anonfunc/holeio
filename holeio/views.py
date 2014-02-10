@@ -5,7 +5,7 @@ from bottle import route, get, post, view, request, redirect
 
 import ConfigParser
 
-from holeio import watcher, downloader
+from holeio import watcher, downloader, db
 import logging
 logger = logging.getLogger(__name__)
 
@@ -79,4 +79,4 @@ def get_authorize():
 @route('/history')
 @view('history')
 def history():
-  return dict()
+  return {'history': db.get_history()}
