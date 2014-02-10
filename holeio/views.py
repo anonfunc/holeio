@@ -26,6 +26,7 @@ def config():
             "polling_interval": 5,
             "inactive_interval": 60,
             "blackhole_dir": "",
+            "incomplete_dir": "",
             "download_dir": ""}
   config = ConfigParser.RawConfigParser()
   config.read("holeio.cfg")
@@ -34,6 +35,7 @@ def config():
   client_secret = config.get('oauth', 'client_secret')
   token = config.get('oauth', 'token')
   blackhole_dir = config.get('directories', 'blackhole')
+  incomplete_dir = config.get('directories', 'incomplete')
   download_dir = config.get('directories', 'download')
   polling_interval = config.get('intervals', 'polling')
   inactive_interval = config.get('intervals', 'inactive')
@@ -57,6 +59,7 @@ def save_config():
   config.set('oauth', 'token', request.forms.token)
   config.set('oauth', 'client_secret', request.forms.client_secret)
   config.set('directories', 'blackhole', request.forms.blackhole_dir)
+  config.set('directories', 'incomplete', request.forms.incomplete_dir)
   config.set('directories', 'download', request.forms.download_dir)
   config.set('intervals', 'polling', request.forms.polling_interval)
   config.set('intervals', 'inactive', request.forms.inactive_interval)

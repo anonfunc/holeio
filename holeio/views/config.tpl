@@ -16,6 +16,7 @@
 <fieldset>
 <legend>Directories</legend>
 <label for="blackhole_dir">Blackhole Directory</label><input type="text" name="blackhole_dir" id="blackhole_dir" value="{{blackhole_dir}}"> <br>
+<label for="incomplete_dir">Incomplete Directory</label><input type="text" name="incomplete_dir" id="incomplete_dir" value="{{incomplete_dir}}"> <br>
 <label for="download_dir">Download Directory</label><input type="text" name="download_dir" id="download_dir" value="{{download_dir}}"> <br>
 </fieldset>
 <fieldset>

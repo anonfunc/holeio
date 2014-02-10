@@ -62,6 +62,7 @@ def download_finished_transfers():
   config = ConfigParser.RawConfigParser()
   config.read("holeio.cfg")
   download_dir = config.get('directories', 'download')
+  incomplete_dir = config.get('directories', 'incomplete')
   for transfer in c.Transfer.list():
     logger.info("looking at transfer %s" % transfer)
     logger.info("status is %s" % transfer.status)
@@ -87,8 +88,10 @@ def download_finished_transfers():
         category = c.File.get(parent_dir).name
       else:
         category = ""
-      local_dir = os.path.join(download_dir, category)
+      local_dir = os.path.join(incomplete_dir, category)
+      finished_dir = os.path.join(download_dir, category)
       local_path = os.path.join(local_dir, file.name)
+      finished_path = os.path.join(finished_dir, file.name)
       if os.path.exists(local_path):
         logger.info("Have %s already, skipping" % local_path)
         continue
@@ -100,6 +103,10 @@ def download_finished_transfers():
       file.download(local_dir, delete_after_download=True)
       logger.info("Finished downloading file to %s.", local_path)
       db.add_history("Finished download to %s" % local_path)
+      os.makedirs(finished_dir)
+      os.rename(local_path, finished_path)
+      logger.info("Renamed from %s to %s", local_path, finished_path)
+      db.add_history("Renamed from %s to %s" % (local_path, finished_path))
   logger.info("Done with all transfers, cleaning.")
   c.Transfer.clean()
 
