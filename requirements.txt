@@ -1,4 +1,3 @@
 putio.py
 bottle
 watchdog
-peewee
