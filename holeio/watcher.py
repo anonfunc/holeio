@@ -7,6 +7,8 @@ from watchdog.events import FileSystemEventHandler
 
 from holeio import client
 from holeio import downloader
+import logging
+logger = logging.getLogger(__name__)
 
 class TorrentEventHandler(FileSystemEventHandler):
   def __init__(self, token):

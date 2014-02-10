@@ -2,6 +2,8 @@ import os
 import ConfigParser
 
 import putio
+import logging
+logger = logging.getLogger(__name__)
 
 client = None
 def get_client():
@@ -34,24 +36,20 @@ def add_torrent(torrent, category=None):
       dir = ensure_directory(category, dir.id)
     return c.Transfer.add_torrent(torrent, dir.id, extract=True)
   except:
-    print "Problem adding torrent"
+    logger.error("Problem adding torrent")
 
 def waiting_for_transfers():
   c = get_client()
   for transfer in c.Transfer.list():
-    if transfer.downloaded:
-      continue
-    if transfer.status in ["COMPLETED", "SEEDING"]:
-      continue
     parent_dir = transfer.save_parent_id
     grandparent_dir = 0
     if parent_dir != 0:
       grandparent_dir = c.File.get(parent_dir).parent_id
     holeio_id = ensure_directory("holeio").id
     if holeio_id in [parent_dir, grandparent_dir]:
-      print "Found transfer under holeio dir."
+      logger.info("Found transfer under holeio dir.")
       return True
-  print "Did not find transfer under holeio dir."
+  logger.info("Did not find transfer under holeio dir.")
   return False
 
 def download_finished_transfers():
@@ -60,15 +58,15 @@ def download_finished_transfers():
   config.read("holeio.cfg")
   download_dir = config.get('directories', 'download')
   for transfer in c.Transfer.list():
-    print "looking at transfer %s" % transfer
-    print "status is %s" % transfer.status
-    print "downloaded is %s" % transfer.downloaded
+    logger.info("looking at transfer %s" % transfer)
+    logger.info("status is %s" % transfer.status)
+    logger.info("downloaded is %s" % transfer.downloaded)
     if (transfer.status in ["COMPLETED", "SEEDING"]):
-      print "Need to download finished transfer: %s" % transfer
+      logger.info("Need to download finished transfer: %s" % transfer)
       try:
         file = c.File.get(transfer.file_id)
       except Exception as e:
-        print "Skipping file, %s" % e
+        logger.info("Skipping file, %s" % e)
         continue
       parent_dir = file.parent_id
       grandparent_dir = 0
@@ -76,7 +74,7 @@ def download_finished_transfers():
         grandparent_dir = c.File.get(parent_dir).parent_id
       holeio_id = ensure_directory("holeio").id
       if holeio_id not in [parent_dir, grandparent_dir]:
-        print "Not under holeio directory.  Skipping"
+        logger.info("Not under holeio directory.  Skipping")
         continue
 
       if parent_dir != holeio_id and parent_dir != 0:
@@ -87,11 +85,14 @@ def download_finished_transfers():
       local_dir = os.path.join(download_dir, category)
       local_path = os.path.join(local_dir, file.name)
       if os.path.exists(local_path):
-        print "Have %s already, skipping" % local_path
+        logger.info("Have %s already, skipping" % local_path)
         continue
       if file.content_type == 'application/x-directory':
         # Mirror it locally
         os.makedirs(local_path)
-      print "Starting download to %s..." % local_dir
-      file.download(local_dir, delete_after_download=False)
-      print "Finished."
+      logger.info("Starting download to %s..." % local_dir)
+      file.download(local_dir, delete_after_download=True)
+      logger.info("Finished downloading file to %s.", local_path)
+  logger.info("Done with all transfers, cleaning.")
+  c.Transfer.clean()
+

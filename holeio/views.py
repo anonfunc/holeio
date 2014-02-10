@@ -6,6 +6,8 @@ from bottle import route, get, post, view, request, redirect
 import ConfigParser
 
 from holeio import watcher, downloader
+import logging
+logger = logging.getLogger(__name__)
 
 bottle.TEMPLATE_PATH.append(os.path.join(os.path.dirname(__file__), 'views'))
 
@@ -63,7 +65,7 @@ def save_config():
   with open('holeio.cfg', 'wb') as configfile:
         config.write(configfile)
   if old_dir != request.forms.blackhole_dir:
-    print "New drop directory, restarting watcher"
+    logger.info("New drop directory, restarting watcher")
     watcher.restart_watcher()
   downloader.start()
   redirect("/config")
