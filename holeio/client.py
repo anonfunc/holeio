@@ -29,6 +29,25 @@ def ensure_directory(name, parent=0):
   dir_obj = [file for file in client.File.list(parent) if file.name == name][0]
   return dir_obj
 
+def add_torrent_uri(torrent_uri, category=None):
+  try:
+    c = get_client()
+    dir = ensure_directory("holeio")
+    # Transfer object
+    if category:
+      dir = ensure_directory(category, dir.id)
+    # Bugged: Doesn't pass parent.
+    # result = c.Transfer.add_url(torrent_uri, dir.id, extract=True)
+    #result = c.Transfer.add_url(torrent_uri, dir.id, extract=True)
+    client.request("/transfers/add", method="POST",
+                   data={"url": torrent_uri, "save_parent_id": dir.id, "extract": True})
+    db.add_history("Added magnet link %s" % str(torrent_uri))
+    #return result
+    return True
+  except:
+    logger.error("Problem adding torrent")
+    db.add_history("Problem adding torrent %s" % str(torrent_uri))
+
 def add_torrent(torrent, category=None):
   try:
     c = get_client()
@@ -97,13 +116,16 @@ def download_finished_transfers():
         continue
       if file.content_type == 'application/x-directory':
         # Mirror it locally
-        os.makedirs(local_path)
-      logger.info("Starting download to %s..." % local_dir)
+        if not os.path.exists(local_dir):
+          os.makedirs(local_dir)
+      logger.info("Starting download to %s..." % local_path)
       db.add_history("Starting download to %s" % local_path)
       file.download(local_dir, delete_after_download=True)
       logger.info("Finished downloading file to %s.", local_path)
       db.add_history("Finished download to %s" % local_path)
       os.makedirs(finished_dir)
+      if not os.path.exists(finished_dir):
+        os.makedirs(finished_dir)
       os.rename(local_path, finished_path)
       logger.info("Renamed from %s to %s", local_path, finished_path)
       db.add_history("Renamed from %s to %s" % (local_path, finished_path))

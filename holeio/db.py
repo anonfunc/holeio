@@ -21,3 +21,4 @@ def clear_history():
   db = sqlite3.connect('holeio.db')
   with db:
     db.execute('''delete from history''')
+  add_history("Cleared History")

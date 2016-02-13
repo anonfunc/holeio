@@ -1,7 +1,7 @@
 import threading
 import ConfigParser
 
-from holeio import client
+from holeio import client, db
 import logging
 logger = logging.getLogger(__name__)
 
@@ -49,4 +49,5 @@ def wake():
   wakeup.acquire()
   wakeup.notify()
   logger.info("Waking Downloader...")
+  db.add_history("Woke downloader")
   wakeup.release()

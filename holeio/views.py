@@ -5,7 +5,7 @@ from bottle import route, get, post, view, request, redirect
 
 import ConfigParser
 
-from holeio import watcher, downloader, db
+from holeio import watcher, downloader, db, client
 import logging
 logger = logging.getLogger(__name__)
 
@@ -73,6 +73,16 @@ def save_config():
   downloader.start()
   redirect("/config")
 
+@get('/clearhistory')
+def clear_history():
+  db.clear_history()
+  redirect("/history")
+
+@get('/wake')
+def wake_downloader():
+  downloader.wake()
+  redirect("/history")
+
 @get('/authorize')
 @view('authorize')
 def get_authorize():
@@ -83,3 +93,9 @@ def get_authorize():
 @view('history')
 def history():
   return {'history': db.get_history()}
+
+
+@post('/magnet')
+def magnet():
+  client.add_torrent_uri(request.forms.uri)
+  redirect("/history")
