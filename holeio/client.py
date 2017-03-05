@@ -132,12 +132,10 @@ def download_finished_transfers():
       file.download(local_dir, delete_after_download=True)
       logger.info("Finished downloading file to %s.", local_path)
       db.add_history("Finished download to %s" % local_path)
-      os.makedirs(finished_dir)
-      if not os.path.exists(finished_dir):
-        try:
-          os.makedirs(finished_dir)
-        except OSError:
-          pass
+      try:
+        os.makedirs(finished_dir)
+      except OSError:
+        pass
       os.rename(local_path, finished_path)
       logger.info("Renamed from %s to %s", local_path, finished_path)
       db.add_history("Renamed from %s to %s" % (local_path, finished_path))
