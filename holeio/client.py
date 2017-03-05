@@ -17,8 +17,10 @@ def get_client():
   config = ConfigParser.RawConfigParser()
   config.read("holeio.cfg")
   token = config.get('oauth', 'token')
-  client = putiopy.Client(token)
-  return client
+  if token:
+    client = putiopy.Client(token)
+    return client
+  logger.error('No oauth token set')
 
 def ensure_directory(name, parent=0):
   client = get_client()
@@ -117,7 +119,10 @@ def download_finished_transfers():
       if file.content_type == 'application/x-directory':
         # Mirror it locally
         if not os.path.exists(local_dir):
-          os.makedirs(local_dir)
+          try:
+            os.makedirs(local_dir)
+          except OSError:
+            pass
       logger.info("Starting download to %s..." % local_path)
       db.add_history("Starting download to %s" % local_path)
       file.download(local_dir, delete_after_download=True)
@@ -125,7 +130,10 @@ def download_finished_transfers():
       db.add_history("Finished download to %s" % local_path)
       os.makedirs(finished_dir)
       if not os.path.exists(finished_dir):
-        os.makedirs(finished_dir)
+        try:
+          os.makedirs(finished_dir)
+        except OSError:
+          pass
       os.rename(local_path, finished_path)
       logger.info("Renamed from %s to %s", local_path, finished_path)
       db.add_history("Renamed from %s to %s" % (local_path, finished_path))

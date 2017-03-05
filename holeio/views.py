@@ -13,8 +13,14 @@ bottle.TEMPLATE_PATH.append(os.path.join(os.path.dirname(__file__), 'views'))
 
 config = ConfigParser.ConfigParser()
 config.read('holeio.cfg')
+try:
+  WEBROOT = '/' + config.get('web', 'root').strip('/') + '/'
+  WEBROOT.replace('//', '/')
+except:
+  WEBROOT = ''
 
-@get('/config')
+logger.info('Registering ' + WEBROOT + 'config')
+@get(WEBROOT + 'config')
 @view('config')
 def config():
   if not os.path.isfile("holeio.cfg"):
@@ -23,6 +29,7 @@ def config():
             "token_set": False,
             "token": "",
             "host": "",
+            "root": "",
             "polling_interval": 5,
             "inactive_interval": 60,
             "blackhole_dir": "",
@@ -31,6 +38,7 @@ def config():
   config = ConfigParser.RawConfigParser()
   config.read("holeio.cfg")
   host = config.get('web', 'host')
+  root = config.get('web', 'root')
   client_id = config.get('oauth', 'client_id')
   client_secret = config.get('oauth', 'client_secret')
   token = config.get('oauth', 'token')
@@ -41,7 +49,8 @@ def config():
   inactive_interval = config.get('intervals', 'inactive')
   return locals()
 
-@post('/config')
+logger.info('Registering ' + WEBROOT + 'config')
+@post(WEBROOT + 'config')
 def save_config():
   config = ConfigParser.RawConfigParser()
   if os.path.isfile("holeio.cfg"):
@@ -55,6 +64,7 @@ def save_config():
   if config.has_option("directories", "blackhole"):
     old_dir = config.get("directories", "blackhole")
   config.set('web', 'host', request.forms.host)
+  config.set('web', 'root', request.forms.root)
   config.set('oauth', 'client_id', request.forms.client_id)
   config.set('oauth', 'token', request.forms.token)
   config.set('oauth', 'client_secret', request.forms.client_secret)
@@ -71,31 +81,32 @@ def save_config():
     logger.info("New drop directory, restarting watcher")
     watcher.restart_watcher()
   downloader.start()
-  redirect("/config")
+  redirect(WEBROOT + "config")
 
-@get('/clearhistory')
+logger.info('Registering ' + WEBROOT + 'clearhistory')
+@get(WEBROOT + 'clearhistory')
 def clear_history():
   db.clear_history()
-  redirect("/history")
+  redirect(WEBROOT + "history")
 
-@get('/wake')
+@get(WEBROOT + 'wake')
 def wake_downloader():
   downloader.wake()
-  redirect("/history")
+  redirect(WEBROOT + "history")
 
-@get('/authorize')
+@get(WEBROOT + 'authorize')
 @view('authorize')
 def get_authorize():
   return dict()
 
-@route('/')
-@route('/history')
+@route(WEBROOT)
+@route(WEBROOT + 'history')
 @view('history')
 def history():
   return {'history': db.get_history()}
 
 
-@post('/magnet')
+@post(WEBROOT + 'magnet')
 def magnet():
   client.add_torrent_uri(request.forms.uri)
-  redirect("/history")
+  redirect(WEBROOT + "history")

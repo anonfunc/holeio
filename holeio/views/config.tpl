@@ -5,6 +5,7 @@
 <fieldset>
 <legend>Web Configuration</legend>
 <label for="Host">Host</label><input type="text" name="host" id="host" value="{{host}}"> <br>
+<label for="Root">Root</label><input type="text" name="root" id="root" value="{{root}}"> <br>
 </fieldset>
 <fieldset>
 <legend>OAuth Configuration</legend>

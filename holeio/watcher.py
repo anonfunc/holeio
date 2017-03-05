@@ -49,6 +49,9 @@ def start_watching():
   config.read('holeio.cfg')
   token = config.get('oauth', 'token')
   blackhole_dir = config.get('directories', 'blackhole')
+  if not os.path.exists(blackhole_dir):
+      logger.error('Blackhole dir at %s does not exist.' % blackhole_dir)
+      return
   event_handler = TorrentEventHandler(token)
   if observer is None:
     observer = Observer()
