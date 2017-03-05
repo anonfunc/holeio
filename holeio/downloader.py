@@ -13,7 +13,10 @@ def loop():
   running = True
   while running:
     logger.info("Looking for finished transfers")
-    client.download_finished_transfers()
+    try:
+      client.download_finished_transfers()
+    except:
+      logger.exception('Exception while downloading')
     config = ConfigParser.RawConfigParser()
     config.read("holeio.cfg")
     polling_interval = config.get('intervals', 'polling')
