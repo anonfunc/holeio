@@ -21,6 +21,7 @@ except:
 
 
 def check_user(user, password):
+  global config
   expected_user = config.get('web', 'user')
   if not expected_user:
       return True
@@ -34,7 +35,7 @@ def check_user(user, password):
 @get(WEBROOT + 'config')
 @auth_basic(check_user)
 @view('config')
-def config():
+def view_config():
   if not os.path.isfile("holeio.cfg"):
     return {"client_id": "",
             "client_secret": "",
