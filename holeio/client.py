@@ -1,13 +1,15 @@
 import os
 import ConfigParser
+import shutil
 
 import putiopy
 import logging
-logger = logging.getLogger(__name__)
 
 from holeio import db
 
+logger = logging.getLogger(__name__)
 client = None
+
 def get_client():
   global client
   if not os.path.isfile("holeio.cfg"):
@@ -40,11 +42,13 @@ def add_torrent_uri(torrent_uri, category=None):
       dir = ensure_directory(category, dir.id)
     # Bugged: Doesn't pass parent.
     # result = c.Transfer.add_url(torrent_uri, dir.id, extract=True)
-    #result = c.Transfer.add_url(torrent_uri, dir.id, extract=True)
-    client.request("/transfers/add", method="POST",
-                   data={"url": torrent_uri, "save_parent_id": dir.id, "extract": True})
+    # result = c.Transfer.add_url(torrent_uri, dir.id, extract=True)
+    c.request("/transfers/add", method="POST",
+              data={"url": torrent_uri,
+                    "save_parent_id": dir.id,
+                    "extract": True})
     db.add_history("Added magnet link %s" % str(torrent_uri))
-    #return result
+    # return result
     return True
   except:
     logger.error("Problem adding torrent")
@@ -114,8 +118,8 @@ def download_finished_transfers():
       local_path = os.path.join(local_dir, file.name)
       finished_path = os.path.join(finished_dir, file.name)
       if os.path.exists(local_path):
-        logger.info("Have %s already, skipping" % local_path)
-        continue
+          logger.info("%s exists, deleting and trying over")
+          shutil.rmtree(local_path)
       if file.content_type == 'application/x-directory':
         # Mirror it locally
         if not os.path.exists(local_dir):
@@ -139,4 +143,3 @@ def download_finished_transfers():
       db.add_history("Renamed from %s to %s" % (local_path, finished_path))
   logger.info("Done with all transfers, cleaning.")
   c.Transfer.clean()
-
