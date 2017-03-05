@@ -1,7 +1,7 @@
 import os
 import ConfigParser
 
-import putio
+import putiopy
 import logging
 logger = logging.getLogger(__name__)
 
@@ -17,7 +17,7 @@ def get_client():
   config = ConfigParser.RawConfigParser()
   config.read("holeio.cfg")
   token = config.get('oauth', 'token')
-  client = putio.Client(token)
+  client = putiopy.Client(token)
   return client
 
 def ensure_directory(name, parent=0):
