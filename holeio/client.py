@@ -138,9 +138,9 @@ def download_finished_transfers():
         os.chmod(local_path, 0o777)
         for root, dirs, files in os.walk(local_path):
           for d in dirs:
-            os.chmod(d, 0o777)
+            os.chmod(os.path.join(root, d), 0o777)
           for f in files:
-            os.chmod(f, 0o666)
+            os.chmod(os.path.join(root, f), 0o666)
       try:
         os.makedirs(finished_dir)
       except OSError:
