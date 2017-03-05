@@ -17,7 +17,7 @@ try:
   WEBROOT = '/' + config.get('web', 'root').strip('/') + '/'
   WEBROOT.replace('//', '/')
 except:
-  WEBROOT = ''
+  WEBROOT = '/'
 
 logger.info('Registering ' + WEBROOT + 'config')
 @get(WEBROOT + 'config')
