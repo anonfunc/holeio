@@ -148,5 +148,13 @@ def download_finished_transfers():
       os.rename(local_path, finished_path)
       logger.info("Renamed from %s to %s", local_path, finished_path)
       db.add_history("Renamed from %s to %s" % (local_path, finished_path))
-  logger.info("Done with all transfers, cleaning.")
-  c.Transfer.clean()
+  for transfer in c.Transfer.list():
+    print transfer.name, transfer.status
+    if transfer.status in ['DOWNLOADING', 'IN_QUEUE']:
+      continue
+    if transfer.is_private:
+      # TODO: configurable ratio
+      if transfer.status == 'SEEDING' or transfer.current_ratio < 1.99:
+        continue
+    print 'Removing transfer %s' % transfer.name
+    transfer.cancel()
