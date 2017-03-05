@@ -1,7 +1,7 @@
 import os
 
 import bottle
-from bottle import route, get, post, view, request, redirect
+from bottle import route, get, post, view, request, redirect, auth_basic
 
 import ConfigParser
 
@@ -19,8 +19,20 @@ try:
 except:
   WEBROOT = '/'
 
-logger.info('Registering ' + WEBROOT + 'config')
+
+def check_user(user, password):
+  expected_user = config.get('web', 'user')
+  if not expected_user:
+      return True
+  if user != expected_user:
+    return False
+  if password != config.get('web', 'password'):
+    return False
+  return True
+
+
 @get(WEBROOT + 'config')
+@auth_basic(check_user)
 @view('config')
 def config():
   if not os.path.isfile("holeio.cfg"):
@@ -30,6 +42,8 @@ def config():
             "token": "",
             "host": "",
             "root": "",
+            "user": "",
+            "password": "",
             "polling_interval": 5,
             "inactive_interval": 60,
             "blackhole_dir": "",
@@ -39,6 +53,8 @@ def config():
   config.read("holeio.cfg")
   host = config.get('web', 'host')
   root = config.get('web', 'root')
+  user = config.get('web', 'user')
+  password = config.get('web', 'password')
   client_id = config.get('oauth', 'client_id')
   client_secret = config.get('oauth', 'client_secret')
   token = config.get('oauth', 'token')
@@ -49,8 +65,8 @@ def config():
   inactive_interval = config.get('intervals', 'inactive')
   return locals()
 
-logger.info('Registering ' + WEBROOT + 'config')
 @post(WEBROOT + 'config')
+@auth_basic(check_user)
 def save_config():
   config = ConfigParser.RawConfigParser()
   if os.path.isfile("holeio.cfg"):
@@ -83,30 +99,41 @@ def save_config():
   downloader.start()
   redirect(WEBROOT + "config")
 
-logger.info('Registering ' + WEBROOT + 'clearhistory')
 @get(WEBROOT + 'clearhistory')
+@auth_basic(check_user)
 def clear_history():
   db.clear_history()
   redirect(WEBROOT + "history")
 
 @get(WEBROOT + 'wake')
+@auth_basic(check_user)
 def wake_downloader():
   downloader.wake()
   redirect(WEBROOT + "history")
 
+@post(WEBROOT + 'wake')
+def post_wake_downloader():
+  downloader.wake()
+  logger.info("Got POST to wake endpoint, content:")
+  logger.info(request.forms)
+
+
 @get(WEBROOT + 'authorize')
+@auth_basic(check_user)
 @view('authorize')
 def get_authorize():
   return dict()
 
 @route(WEBROOT)
 @route(WEBROOT + 'history')
+@auth_basic(check_user)
 @view('history')
 def history():
   return {'history': db.get_history()}
 
 
 @post(WEBROOT + 'magnet')
+@auth_basic(check_user)
 def magnet():
   client.add_torrent_uri(request.forms.uri)
   redirect(WEBROOT + "history")

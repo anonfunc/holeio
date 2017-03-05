@@ -4,6 +4,8 @@
 <form action="config" method="post">
 <fieldset>
 <legend>Web Configuration</legend>
+<label for="User">User</label><input type="text" name="user" id="user" value="{{user}}"> <br>
+<label for="Password">Password</label><input type="text" name="password" id="password" value="{{password}}"> <br>
 <label for="Host">Host</label><input type="text" name="host" id="host" value="{{host}}"> <br>
 <label for="Root">Root</label><input type="text" name="root" id="root" value="{{root}}"> <br>
 </fieldset>
