@@ -1,5 +1,4 @@
 import os
-import time
 import ConfigParser
 
 from watchdog.observers import Observer
@@ -16,7 +15,7 @@ class TorrentEventHandler(FileSystemEventHandler):
     self.token = token
 
   def check_file(self, file_path):
-    if not file_path.endswith(".torrent"):
+    if not (file_path.endswith(".torrent") or file_path.endswith(".magnet")):
       print "%s not a torrent" % file_path
       return
 
@@ -30,7 +29,13 @@ class TorrentEventHandler(FileSystemEventHandler):
     relpath = os.path.relpath(file_path, blackhole_dir)
     category = os.path.dirname(relpath)
     print "I think it's in category %s" % category
-    client.add_torrent(file_path, category)
+    if file_path.endswith('.torrent'):
+        client.add_torrent(file_path, category)
+    else:
+        with open(file_path) as f:
+            uri = f.read().strip()
+            print "Added magnet uri: %s" % uri
+            client.add_torrent_uri(uri, category)
     os.rename(file_path, file_path + ".added")
     print "Let's wake up the downloader, if needed"
     downloader.wake()
