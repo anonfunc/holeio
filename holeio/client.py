@@ -130,11 +130,13 @@ def download_finished_transfers():
       logger.info("Starting download to %s..." % local_path)
       db.add_history("Starting download to %s" % local_path)
       file.download(local_dir, delete_after_download=True)
-      logger.info("Finished downloading file to %s. Changing permissions.", local_path)
-      db.add_history("Finished download to %s. Changing permissions" % local_path)
+      logger.info("Finished downloading file to %s. Changing permissions.",
+                  local_path)
+      db.add_history("Finished download to %s. Changing permissions" %
+                     local_path)
       if os.path.isdir(local_path):
         os.chmod(local_path, 0o777)
-        for root, dirs, files in os.walk(local_path)
+        for root, dirs, files in os.walk(local_path):
           for d in dirs:
             os.chmod(d, 0o777)
           for f in files:
