@@ -27,7 +27,7 @@ Clone this repo somewhere and set up a virtual environment:
   
 Start the server:
 
-    nohup ./start.sh >> logfile &
+    ./start.sh
 
 Open 127.0.0.1:8080 (or whatever the IP address is of the host you are running on).
 

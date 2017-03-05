@@ -1,3 +1,3 @@
 #!/bin/bash
 
-kill $(ps a | grep [hH]oleio.app | awk '{print $1}')
+kill $(ps aux | grep [hH]oleio.app | awk '{print $2}')
