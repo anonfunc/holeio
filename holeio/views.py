@@ -1,7 +1,7 @@
 import os
 
 import bottle
-from bottle import route, get, post, view, request, redirect, auth_basic
+from bottle import route, get, post, view, request, redirect
 
 import ConfigParser
 
@@ -19,16 +19,25 @@ try:
 except:
   WEBROOT = '/'
 
+try:
+    config.get('web', 'user')
+    from bottle import auth_basic
+except:
+    auth_basic = lambda x: lambda y: y # noqa
+
 
 def check_user(user, password):
   global config
-  expected_user = config.get('web', 'user')
-  if not expected_user:
+  try:
+    expected_user = config.get('web', 'user')
+    if not expected_user:
+        return True
+    if user != expected_user:
+        return False
+    if password != config.get('web', 'password'):
+        return False
+  except:
       return True
-  if user != expected_user:
-    return False
-  if password != config.get('web', 'password'):
-    return False
   return True
 
 
