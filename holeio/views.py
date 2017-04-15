@@ -15,7 +15,7 @@ config = ConfigParser.ConfigParser()
 config.read('holeio.cfg')
 try:
     WEBROOT = '/' + config.get('web', 'root').strip('/') + '/'
-    WEBROOT.replace('//', '/')
+    WEBROOT = WEBROOT.replace('//', '/')
 except:
     WEBROOT = '/'
 
