@@ -1,7 +1,7 @@
 import os
 
 import bottle
-from bottle import route, get, post, view, request, redirect
+from bottle import route, get, post, view, request
 
 import ConfigParser
 
@@ -152,3 +152,10 @@ def history():
 def magnet():
     client.add_torrent_uri(request.forms.uri)
     redirect(WEBROOT + "history")
+
+
+def redirect(redirect_path):
+    if 'X-Forwarded-Host' in request.headers:
+        http = 'https' if request.headers.get('X-Https', 'off') == 'on' else http
+        redirect_path = '%s://%s%s' % (http, request.headers['X-Forwarded-Host'], redirect_path)
+    bottle.redirect(redirect_path)
