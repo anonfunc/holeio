@@ -1,4 +1,4 @@
-#from bottle import run
+# from bottle import run
 import ConfigParser
 import os
 
@@ -9,11 +9,11 @@ import logging
 logger = logging.getLogger(__name__)
 
 if os.path.isfile('holeio.cfg'):
-  config = ConfigParser.ConfigParser()
-  config.read('holeio.cfg')
-  if config.get('oauth', 'token'):
-    watcher.start_watching()
-    downloader.start()
+    config = ConfigParser.ConfigParser()
+    config.read('holeio.cfg')
+    if config.get('oauth', 'token'):
+        watcher.start_watching()
+        downloader.start()
 
 logging.debug("DEBUG logging visible")
 logging.info("INFO logging visible")
