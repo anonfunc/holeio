@@ -94,6 +94,7 @@ def download_finished_transfers():
     config.read("holeio.cfg")
     download_dir = config.get('directories', 'download')
     incomplete_dir = config.get('directories', 'incomplete')
+    downloaded_transfers = []
     for transfer in c.Transfer.list():
         logger.info("looking at transfer %s" % transfer)
         logger.info("status is %s" % transfer.status)
@@ -101,11 +102,11 @@ def download_finished_transfers():
         if (transfer.status in ["COMPLETED", "SEEDING"]):
             logger.info("Need to download finished transfer: %s" % transfer)
             try:
-                file = c.File.get(transfer.file_id)
+                transfer_file = c.File.get(transfer.file_id)
             except Exception as e:
                 logger.info("Skipping file, %s" % e)
                 continue
-            parent_dir = file.parent_id
+            parent_dir = transfer_file.parent_id
             grandparent_dir = 0
             if parent_dir != 0:
                 grandparent_dir = c.File.get(parent_dir).parent_id
@@ -121,12 +122,12 @@ def download_finished_transfers():
                 category = ""
             local_dir = os.path.join(incomplete_dir, category)
             finished_dir = os.path.join(download_dir, category)
-            local_path = os.path.join(local_dir, file.name)
-            finished_path = os.path.join(finished_dir, file.name)
+            local_path = os.path.join(local_dir, transfer_file.name)
+            finished_path = os.path.join(finished_dir, transfer_file.name)
             if os.path.exists(local_path):
                 logger.info("%s exists, deleting and trying over")
                 shutil.rmtree(local_path)
-            if file.content_type == 'application/x-directory':
+            if transfer_file.content_type == 'application/x-directory':
                 # Mirror it locally
                 if not os.path.exists(local_dir):
                     try:
@@ -135,11 +136,12 @@ def download_finished_transfers():
                         pass
             logger.info("Starting download to %s..." % local_path)
             db.add_history("Starting download to %s" % local_path)
-            file.download(local_dir, delete_after_download=True)
+            transfer_file.download(local_dir, delete_after_download=False)
             logger.info("Finished downloading file to %s. Changing permissions.",
                         local_path)
             db.add_history("Finished download to %s. Changing permissions" %
                            local_path)
+            downloaded_transfers.append(transfer)
             if os.path.isdir(local_path):
                 os.chmod(local_path, 0o777)
                 for root, dirs, files in os.walk(local_path):
@@ -154,7 +156,7 @@ def download_finished_transfers():
             os.rename(local_path, finished_path)
             logger.info("Renamed from %s to %s", local_path, finished_path)
             db.add_history("Renamed from %s to %s" % (local_path, finished_path))
-    for transfer in c.Transfer.list():
+    for transfer in downloaded_transfers:
         print transfer.name, transfer.status
         if transfer.status in ['DOWNLOADING', 'IN_QUEUE']:
             continue
@@ -162,5 +164,11 @@ def download_finished_transfers():
             # TODO: configurable ratio
             if transfer.status == 'SEEDING' or transfer.current_ratio < 1.99:
                 continue
+        try:
+            transfer_file = c.File.get(transfer.file_id)
+        except Exception as e:
+            logger.info("Not clearing transfer, %s" % e)
+            continue
         print 'Removing transfer %s' % transfer.name
+        transfer_file.delete()
         transfer.cancel()
