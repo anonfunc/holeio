@@ -136,7 +136,7 @@ def download_finished_transfers():
                         pass
             logger.info("Starting download to %s..." % local_path)
             db.add_history("Starting download to %s" % local_path)
-            transfer_file.download(local_dir, delete_after_download=False)
+            transfer_file.download(local_dir, delete_after_download=True)
             logger.info("Finished downloading file to %s. Changing permissions.",
                         local_path)
             db.add_history("Finished download to %s. Changing permissions" %
@@ -164,11 +164,5 @@ def download_finished_transfers():
             # TODO: configurable ratio
             if transfer.status == 'SEEDING' or transfer.current_ratio < 1.99:
                 continue
-        try:
-            transfer_file = c.File.get(transfer.file_id)
-        except Exception as e:
-            logger.info("Not clearing transfer, %s" % e)
-            continue
         print 'Removing transfer %s' % transfer.name
-        transfer_file.delete()
         transfer.cancel()
