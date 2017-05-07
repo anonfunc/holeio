@@ -18,4 +18,5 @@ if os.path.isfile('holeio.cfg'):
 logging.debug("DEBUG logging visible")
 logging.info("INFO logging visible")
 logging.warning("WARNING logging visible")
+db.create_tables()
 db.add_history("Starting hole.io")

@@ -5,7 +5,6 @@ def create_tables():
     db = sqlite3.connect('holeio.db')
     with db:
         db.execute('''create table if not exists history (message text, timestamp text DEFAULT CURRENT_TIMESTAMP) ''')
-    create_tables()
 
 
 def add_history(message):
